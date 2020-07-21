@@ -19,8 +19,11 @@ module vsphere_machine {
   }
   template                  = "ubuntu-18.04-2020-06-13"
 }
+```
 
 Based on your inputs, the appropriate data sources will be used to query your vSphere infrastructure.
 
 The guest OS configuration/customisation uses dynamic blocks to egnerate the code based on the guest_id attribute of the source template.
 Similarly, network configuration (static/dhcp) will be generated based on the keys/values you feed into the networks input.
+
+If you don't provide a hostname, one will be generated for you using the random_pet and random_integer resources.
