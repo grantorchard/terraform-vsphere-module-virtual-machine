@@ -1,6 +1,18 @@
 data vsphere_compute_cluster "this" {
-  name          = var.cluster
+  for_each      = var.cluster != "" ? toset([var.cluster]) : toset([])
+  name          = each.value
   datacenter_id = data.vsphere_datacenter.this.id
+}
+
+data vsphere_content_library "this" {
+  for_each = var.content_library_name != "" ? toset([var.content_library_name]) : toset([])
+  name = each.value
+}
+
+data vsphere_content_library_item "this" {
+  for_each   = var.content_library_name != "" ? toset([var.template]) : toset([])
+  name       = each.value
+  library_id = data.vsphere_content_library.this[var.content_library_name].id
 }
 
 data vsphere_datacenter "this" {
@@ -54,7 +66,8 @@ data vsphere_tag_category "this" {
 }
 
 data vsphere_virtual_machine "this" {
-  name          = var.template
+  for_each      = var.content_library_name == "" ? toset([var.template]) : toset([])
+  name          = each.value
   datacenter_id = data.vsphere_datacenter.this.id
 }
 

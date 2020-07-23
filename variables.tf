@@ -1,27 +1,33 @@
 variable cluster {
-  description = "The name of the cluster into which you want your workload provisioned."
+  description = "The name of the cluster into which you want your workload provisioned. Must be set if resource_pool is not set."
   type        = string
+  default     = ""
+}
+
+variable content_library_name {
+  type = string
+  default = ""
 }
 
 variable custom_attributes {
-  description = ""
+  description = "A list of custom attributes to assign to your vm."
   type        = list(string)
   default     = []
 }
 
 variable datacenter {
-  description = ""
+  description = "The name of the datacenter in which you want your workload provisioned."
   type = string
 }
 
 variable primary_datastore {
-  description = ""
+  description = "The name of the datastore for the first disk to be placed. Must be set if primary_datastore_cluster is not used."
   type    = string
   default = ""
 }
 
 variable primary_datastore_cluster {
-  description = ""
+  description = "The name of the datastore for the first disk to be placed. Must be set if primary_datastore is not used."
   type    = string
   default = ""
 }
@@ -38,6 +44,7 @@ variable hosts {
 }
 
 variable resource_pool {
+  description = "The name of the resource pool that you want your virtual machine deployed into. If not set, your machine will be placed in the default resource pool of the cluster."
   type    = string
   default = ""
 }
