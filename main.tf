@@ -1,5 +1,5 @@
 locals {
-  windows  = length(regexall("^win", data.vsphere_virtual_machine.this[var.template].guest_id)) > 0
+  windows  = var.template != "" ? length(regexall("^win", data.vsphere_virtual_machine.this[var.template].guest_id)) > 0 : null
   hostname = var.hostname != "" ? var.hostname : "${random_pet.this.id}-${random_integer.this.result}"
 }
 
@@ -21,9 +21,9 @@ resource vsphere_virtual_machine "this" {
 
   num_cpus  = var.num_cpus
   memory    = var.memory
-  guest_id  = data.vsphere_virtual_machine.this[var.template].guest_id
-  scsi_type = data.vsphere_virtual_machine.this[var.template].scsi_type
-  firmware  = data.vsphere_virtual_machine.this[var.template].firmware
+  guest_id  = var.template != "" ? data.vsphere_virtual_machine.this[var.template].guest_id : null
+  scsi_type = var.template != "" ? data.vsphere_virtual_machine.this[var.template].scsi_type : null
+  firmware  = var.template != "" ? data.vsphere_virtual_machine.this[var.template].firmware : null
 
   dynamic "network_interface" {
     for_each = var.networks
@@ -36,14 +36,19 @@ resource vsphere_virtual_machine "this" {
 
   wait_for_guest_net_timeout = -1
 
-  disk {
+  dynamic "disk" {
+    for_each = var.template != "" ? [0] : []
+    content {
       label            = "disk0"
       size             = data.vsphere_virtual_machine.this[var.template].disks[0].size
       eagerly_scrub    = data.vsphere_virtual_machine.this[var.template].disks[0].eagerly_scrub
       thin_provisioned = data.vsphere_virtual_machine.this[var.template].disks[0].thin_provisioned
+    }
   }
 
-  clone {
+  dynamic "clone" {
+    for_each = var.template != "" ? [0] : []
+    content {
     template_uuid = data.vsphere_virtual_machine.this[var.template].id
 
     customize {
@@ -79,7 +84,42 @@ resource vsphere_virtual_machine "this" {
       ipv4_gateway    = var.gateway
       dns_server_list = var.dns_server_list
       dns_suffix_list = var.dns_suffix_list
+    }
+    }
+  }
+  datacenter_id  = var.remote_ovf_url != "" || var.local_ovf_path != "" ? data.vsphere_datacenter.this.id : null
+  host_system_id = var.hosts != [] ? data.vsphere_host.this[var.hosts[0]].id : null
 
+  dynamic "ovf_deploy" {
+    for_each = var.remote_ovf_url != "" || var.local_ovf_path != "" ? [0] : []
+    content {
+      local_ovf_path            = var.local_ovf_path != "" ? var.local_ovf_path : null
+      remote_ovf_url            = var.remote_ovf_url != "" ? var.remote_ovf_url : null
+      ip_allocation_policy      = var.ip_allocation_policy
+      ip_protocol               = var.ip_protocol
+      disk_provisioning         = var.disk_provisioning
+      ovf_network_map           = zipmap(keys(var.ovf_network_map), [for v in data.vsphere_network.this: v.id])
+      allow_unverified_ssl_cert = var.allow_unverified_ssl_cert
+    }
+  }
+
+  dynamic "vapp" {
+    for_each = var.remote_ovf_url != "" || var.local_ovf_path != "" ? [0] : []
+    content {
+      properties = merge(var.vapp_properties,
+        {
+          "guestinfo.dns"       = join(",",var.dns_server_list)
+          "guestinfo.domain"    = var.domain
+          "guestinfo.gateway"   = var.gateway
+          "guestinfo.hostname"  = local.hostname
+          "guestinfo.ipaddress" = var.ovf_ipaddress
+          "guestinfo.netmask"   = var.ovf_netmask
+          "guestinfo.ntp"       = join(",", var.ovf_ntp_servers)
+          "guestinfo.password"  = var.ovf_password
+          "guestinfo.ssh"       = var.ovf_enable_ssh
+          "guestinfo.syslog"    = var.ovf_syslog_server
+        }
+      )
     }
   }
 }

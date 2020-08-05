@@ -66,6 +66,7 @@ variable tag_categories {
 
 variable template {
   type    = string
+  default = ""
 }
 
 variable hostname {
@@ -113,6 +114,7 @@ variable gateway {
 
 variable networks {
   type = map(string)
+  default = {}
 }
 
 variable dns_server_list {
@@ -144,6 +146,66 @@ variable domain_admin_user {
 }
 
 variable domain_admin_password {
+  type = string
+  default = ""
+}
+
+variable local_ovf_path {
+  type = string
+  default = ""
+}
+variable remote_ovf_url {
+  type = string
+  default = ""
+}
+variable ip_allocation_policy {
+  type = string
+  default = "STATIC_MANUAL"
+}
+variable ip_protocol {
+  type = string
+  default = "IPV4"
+}
+variable disk_provisioning {
+  type = string
+  default = "thin"
+}
+variable ovf_network_map {
+  type = map
+  default = {}
+}
+
+variable allow_unverified_ssl_cert {
+  type = bool
+  default = true
+}
+
+variable vapp_properties {
+  type = map
+  default = {}
+}
+
+variable ovf_ipaddress {
+  type = string
+  default = ""
+}
+variable ovf_netmask {
+  type = string
+  default = ""
+}
+variable ovf_ntp_servers {
+  type = list
+  default = ["pool.ntp.org"]
+}
+variable ovf_password {
+  type = string
+  default = "VMware123!"
+}
+variable ovf_enable_ssh {
+  type = string
+  default = "false"
+}
+variable ovf_syslog_server {
   type = string
   default = ""
 }

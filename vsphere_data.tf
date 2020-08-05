@@ -38,8 +38,8 @@ data vsphere_host "this" {
 }
 
 data vsphere_network "this" {
-  for_each      = toset(keys(var.networks))
-  name          = each.key
+  for_each      = var.ovf_network_map == {} ? toset(keys(var.networks)) : toset(values(var.ovf_network_map))
+  name          = each.value
   datacenter_id = data.vsphere_datacenter.this.id
 }
 
@@ -66,7 +66,7 @@ data vsphere_tag_category "this" {
 }
 
 data vsphere_virtual_machine "this" {
-  for_each      = var.content_library_name == "" ? toset([var.template]) : toset([])
+  for_each      = var.template != "" ? toset([var.template]) : toset([])
   name          = each.value
   datacenter_id = data.vsphere_datacenter.this.id
 }
