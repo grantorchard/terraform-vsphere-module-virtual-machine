@@ -25,17 +25,17 @@ resource vsphere_virtual_machine "this" {
   scsi_type = var.template != "" ? data.vsphere_virtual_machine.this[var.template].scsi_type : null
   firmware  = var.template != "" ? data.vsphere_virtual_machine.this[var.template].firmware : null
 
+  scsi_controller_count = length(var.extra_disks)+1
+
   dynamic "network_interface" {
     for_each = var.networks
-    iterator = network
     content {
-      network_id   = data.vsphere_network.this[network.key].id
+      network_id   = data.vsphere_network.this[network_interface.key].id
       adapter_type = var.network_adapter_type
     }
   }
 
-  wait_for_guest_net_timeout = -1
-
+  wait_for_guest_net_timeout = -
   dynamic "disk" {
     for_each = var.template != "" ? [0] : []
     content {
@@ -43,6 +43,18 @@ resource vsphere_virtual_machine "this" {
       size             = data.vsphere_virtual_machine.this[var.template].disks[0].size
       eagerly_scrub    = data.vsphere_virtual_machine.this[var.template].disks[0].eagerly_scrub
       thin_provisioned = data.vsphere_virtual_machine.this[var.template].disks[0].thin_provisioned
+    }
+  }
+
+  dynamic "disk" {
+    for_each = var.extra_disks
+    content {
+      label            = format("disk-%d", index(var.extra_disks, disk.value)+1)
+      unit_number      = 15*(index(var.extra_disks, disk.value)+1)+index(var.extra_disks, disk.value)+1
+      attach           = true
+      path             = disk.value["path"]
+      disk_sharing     = disk.value["disk_sharing"]
+      datastore_id     = data.vsphere_datastore.this[disk.value["datastore_id"]].id
     }
   }
 
@@ -88,7 +100,7 @@ resource vsphere_virtual_machine "this" {
     }
   }
   datacenter_id  = var.remote_ovf_url != "" || var.local_ovf_path != "" ? data.vsphere_datacenter.this.id : null
-  host_system_id = var.hosts != [] ? data.vsphere_host.this[var.hosts[0]].id : null
+  host_system_id = length(var.hosts) == 0 ? null : data.vsphere_host.this[var.hosts[0]].id
 
   dynamic "ovf_deploy" {
     for_each = var.remote_ovf_url != "" || var.local_ovf_path != "" ? [0] : []
@@ -98,7 +110,7 @@ resource vsphere_virtual_machine "this" {
       ip_allocation_policy      = var.ip_allocation_policy
       ip_protocol               = var.ip_protocol
       disk_provisioning         = var.disk_provisioning
-      ovf_network_map           = zipmap(keys(var.ovf_network_map), [for v in data.vsphere_network.this: v.id])
+      ovf_network_map           = zipmap(keys(var.ovf_network_map), formatlist("data.vsphere_network.this[%q].id", values(var.ovf_network_map)))
       allow_unverified_ssl_cert = var.allow_unverified_ssl_cert
     }
   }
@@ -112,8 +124,8 @@ resource vsphere_virtual_machine "this" {
           "guestinfo.domain"    = var.domain
           "guestinfo.gateway"   = var.gateway
           "guestinfo.hostname"  = local.hostname
-          "guestinfo.ipaddress" = var.ovf_ipaddress
-          "guestinfo.netmask"   = var.ovf_netmask
+          "guestinfo.ipaddress" = lower(values(var.networks)[0]) == "dhcp" ? null : split("/", values(var.networks)[0]))[0]
+          "guestinfo.netmask"   = lower(values(var.networks)[0]) == "dhcp" ? null : split("/", values(var.networks)[0]))[1]
           "guestinfo.ntp"       = join(",", var.ovf_ntp_servers)
           "guestinfo.password"  = var.ovf_password
           "guestinfo.ssh"       = var.ovf_enable_ssh

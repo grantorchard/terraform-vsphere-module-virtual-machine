@@ -209,3 +209,8 @@ variable ovf_syslog_server {
   type = string
   default = ""
 }
+
+variable extra_disks {
+  type = list(map(string))
+  default = []
+}

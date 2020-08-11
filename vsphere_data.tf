@@ -38,7 +38,7 @@ data vsphere_host "this" {
 }
 
 data vsphere_network "this" {
-  for_each      = var.ovf_network_map == {} ? toset(keys(var.networks)) : toset(values(var.ovf_network_map))
+  for_each      = var.networks != {} ? toset(keys(var.networks)) : toset(values(var.ovf_network_map))
   name          = each.value
   datacenter_id = data.vsphere_datacenter.this.id
 }
