@@ -35,7 +35,7 @@ resource vsphere_virtual_machine "this" {
     }
   }
 
-  wait_for_guest_net_timeout = -
+  wait_for_guest_net_timeout = -1
   dynamic "disk" {
     for_each = var.template != "" ? [0] : []
     content {
