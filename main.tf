@@ -110,7 +110,7 @@ resource vsphere_virtual_machine "this" {
       ip_allocation_policy      = var.ip_allocation_policy
       ip_protocol               = var.ip_protocol
       disk_provisioning         = var.disk_provisioning
-      ovf_network_map           = zipmap(keys(var.ovf_network_map), formatlist(data.vsphere_network.this["%q"].id, values(var.ovf_network_map)))
+      ovf_network_map           = zipmap(keys(var.ovf_network_map), formatlist(data.vsphere_network.this["%s"].id, values(var.ovf_network_map)))
       allow_unverified_ssl_cert = var.allow_unverified_ssl_cert
     }
   }
