@@ -124,8 +124,8 @@ resource vsphere_virtual_machine "this" {
           "guestinfo.domain"    = var.domain
           "guestinfo.gateway"   = var.gateway
           "guestinfo.hostname"  = local.hostname
-          "guestinfo.ipaddress" = lower(values(var.networks)[0]) == "dhcp" ? null : split("/", values(var.networks)[0]))[0]
-          "guestinfo.netmask"   = lower(values(var.networks)[0]) == "dhcp" ? null : split("/", values(var.networks)[0]))[1]
+          "guestinfo.ipaddress" = lower(values(var.networks)[0]) == "dhcp" ? null : split("/", values(var.networks)[0])[0]
+          "guestinfo.netmask"   = lower(values(var.networks)[0]) == "dhcp" ? null : split("/", values(var.networks)[0])[1]
           "guestinfo.ntp"       = join(",", var.ovf_ntp_servers)
           "guestinfo.password"  = var.ovf_password
           "guestinfo.ssh"       = var.ovf_enable_ssh
