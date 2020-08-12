@@ -6,7 +6,7 @@ data vsphere_compute_cluster "this" {
 
 data vsphere_content_library "this" {
   for_each = var.content_library_name != "" ? toset([var.content_library_name]) : toset([])
-  name = each.value
+  name     = each.value
 }
 
 data vsphere_content_library_item "this" {
@@ -38,7 +38,7 @@ data vsphere_host "this" {
 }
 
 data vsphere_network "this" {
-  for_each      = var.networks != {} ? toset(keys(var.networks)) : toset(values(var.ovf_network_map))
+  for_each      = toset(keys(var.networks))
   name          = each.value
   datacenter_id = data.vsphere_datacenter.this.id
 }

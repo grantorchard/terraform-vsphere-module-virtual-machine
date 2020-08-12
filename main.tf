@@ -8,8 +8,8 @@ resource random_pet "this" {
 }
 
 resource random_integer "this" {
-  min     = 1000
-  max     = 9999
+  min = 1000
+  max = 9999
 }
 
 resource vsphere_virtual_machine "this" {
@@ -25,7 +25,7 @@ resource vsphere_virtual_machine "this" {
   scsi_type = var.template != "" ? data.vsphere_virtual_machine.this[var.template].scsi_type : null
   firmware  = var.template != "" ? data.vsphere_virtual_machine.this[var.template].firmware : null
 
-  scsi_controller_count = length(var.extra_disks)+1
+  scsi_controller_count = length(var.extra_disks) + 1
 
   dynamic "network_interface" {
     for_each = var.networks
@@ -49,54 +49,54 @@ resource vsphere_virtual_machine "this" {
   dynamic "disk" {
     for_each = var.extra_disks
     content {
-      label            = format("disk-%d", index(var.extra_disks, disk.value)+1)
-      unit_number      = 15*(index(var.extra_disks, disk.value)+1)+index(var.extra_disks, disk.value)+1
-      attach           = true
-      path             = disk.value["path"]
-      disk_sharing     = disk.value["disk_sharing"]
-      datastore_id     = data.vsphere_datastore.this[disk.value["datastore_id"]].id
+      label        = format("disk-%d", index(var.extra_disks, disk.value) + 1)
+      unit_number  = 15 * (index(var.extra_disks, disk.value) + 1) + index(var.extra_disks, disk.value) + 1
+      attach       = true
+      path         = disk.value["path"]
+      disk_sharing = disk.value["disk_sharing"]
+      datastore_id = data.vsphere_datastore.this[disk.value["datastore_id"]].id
     }
   }
 
   dynamic "clone" {
     for_each = var.template != "" ? [0] : []
     content {
-    template_uuid = data.vsphere_virtual_machine.this[var.template].id
+      template_uuid = data.vsphere_virtual_machine.this[var.template].id
 
-    customize {
-      dynamic "linux_options" {
-        for_each = local.windows == false ? [0] : []
-        content {
-          host_name = local.hostname
-          domain    = var.domain
+      customize {
+        dynamic "linux_options" {
+          for_each = local.windows == false ? [0] : []
+          content {
+            host_name = local.hostname
+            domain    = var.domain
+          }
         }
-      }
 
-      dynamic "windows_options" {
-        for_each = local.windows == true ? [0] : []
-        content {
-          computer_name         = local.hostname
-          admin_password        = var.admin_password
-          workgroup             = var.workgroup != "" ? var.workgroup : null
-          join_domain           = var.ad_domain != "" ? var.ad_domain : null
-          domain_admin_user     = var.ad_domain != "" ? var.domain_admin_user : null
-          domain_admin_password = var.ad_domain != "" ? var.domain_admin_password : null
+        dynamic "windows_options" {
+          for_each = local.windows == true ? [0] : []
+          content {
+            computer_name         = local.hostname
+            admin_password        = var.admin_password
+            workgroup             = var.workgroup != "" ? var.workgroup : null
+            join_domain           = var.ad_domain != "" ? var.ad_domain : null
+            domain_admin_user     = var.ad_domain != "" ? var.domain_admin_user : null
+            domain_admin_password = var.ad_domain != "" ? var.domain_admin_password : null
+          }
         }
-      }
 
-      dynamic "network_interface" {
-        for_each = var.networks
-        iterator = network
-        content {
-          ipv4_address = lower(network.value) == "dhcp" ? null : split("/", network.value)[0]
-          ipv4_netmask = lower(network.value) == "dhcp" ? null : split("/", network.value)[1]
+        dynamic "network_interface" {
+          for_each = var.networks
+          iterator = network
+          content {
+            ipv4_address = lower(network.value) == "dhcp" ? null : split("/", network.value)[0]
+            ipv4_netmask = lower(network.value) == "dhcp" ? null : split("/", network.value)[1]
+          }
         }
-      }
 
-      ipv4_gateway    = var.gateway
-      dns_server_list = var.dns_server_list
-      dns_suffix_list = var.dns_suffix_list
-    }
+        ipv4_gateway    = var.gateway
+        dns_server_list = var.dns_server_list
+        dns_suffix_list = var.dns_suffix_list
+      }
     }
   }
   datacenter_id  = var.remote_ovf_url != "" || var.local_ovf_path != "" ? data.vsphere_datacenter.this.id : null
@@ -110,7 +110,7 @@ resource vsphere_virtual_machine "this" {
       ip_allocation_policy      = var.ip_allocation_policy
       ip_protocol               = var.ip_protocol
       disk_provisioning         = var.disk_provisioning
-      ovf_network_map           = zipmap(keys(var.ovf_network_map), formatlist(data.vsphere_network.this["%s"].id, values(var.ovf_network_map)))
+      ovf_network_map           = { for k, v in var.ovf_network_map : k => data.vsphere_network.this[v].id }
       allow_unverified_ssl_cert = var.allow_unverified_ssl_cert
     }
   }
@@ -120,7 +120,7 @@ resource vsphere_virtual_machine "this" {
     content {
       properties = merge(var.vapp_properties,
         {
-          "guestinfo.dns"       = join(",",var.dns_server_list)
+          "guestinfo.dns"       = join(",", var.dns_server_list)
           "guestinfo.domain"    = var.domain
           "guestinfo.gateway"   = var.gateway
           "guestinfo.hostname"  = local.hostname

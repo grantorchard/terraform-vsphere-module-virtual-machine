@@ -5,7 +5,7 @@ variable cluster {
 }
 
 variable content_library_name {
-  type = string
+  type    = string
   default = ""
 }
 
@@ -17,25 +17,25 @@ variable custom_attributes {
 
 variable datacenter {
   description = "The name of the datacenter in which you want your workload provisioned."
-  type = string
+  type        = string
 }
 
 variable primary_datastore {
   description = "The name of the datastore for the first disk to be placed. Must be set if primary_datastore_cluster is not used."
-  type    = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable primary_datastore_cluster {
   description = "The name of the datastore for the first disk to be placed. Must be set if primary_datastore is not used."
-  type    = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable disks {
   description = ""
-  type    = list(map(string))
-  default = []
+  type        = list(map(string))
+  default     = []
 }
 
 variable hosts {
@@ -45,8 +45,8 @@ variable hosts {
 
 variable resource_pool {
   description = "The name of the resource pool that you want your virtual machine deployed into. If not set, your machine will be placed in the default resource pool of the cluster."
-  type    = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable storage_policies {
@@ -113,7 +113,7 @@ variable gateway {
 }
 
 variable networks {
-  type = map(string)
+  type    = map(string)
   default = {}
 }
 
@@ -126,91 +126,91 @@ variable dns_suffix_list {
 }
 
 variable admin_password {
-  type = string
+  type    = string
   default = ""
 }
 
 variable workgroup {
-  type = string
+  type    = string
   default = ""
 }
 
 variable ad_domain {
-  type = string
+  type    = string
   default = ""
 }
 
 variable domain_admin_user {
-  type = string
+  type    = string
   default = ""
 }
 
 variable domain_admin_password {
-  type = string
+  type    = string
   default = ""
 }
 
 variable local_ovf_path {
-  type = string
+  type    = string
   default = ""
 }
 variable remote_ovf_url {
-  type = string
+  type    = string
   default = ""
 }
 variable ip_allocation_policy {
-  type = string
+  type    = string
   default = "STATIC_MANUAL"
 }
 variable ip_protocol {
-  type = string
+  type    = string
   default = "IPV4"
 }
 variable disk_provisioning {
-  type = string
+  type    = string
   default = "thin"
 }
 variable ovf_network_map {
-  type = map
+  type    = map
   default = {}
 }
 
 variable allow_unverified_ssl_cert {
-  type = bool
+  type    = bool
   default = true
 }
 
 variable vapp_properties {
-  type = map
+  type    = map
   default = {}
 }
 
 variable ovf_ipaddress {
-  type = string
+  type    = string
   default = ""
 }
 variable ovf_netmask {
-  type = string
+  type    = string
   default = ""
 }
 variable ovf_ntp_servers {
-  type = list
+  type    = list
   default = ["pool.ntp.org"]
 }
 variable ovf_password {
-  type = string
+  type    = string
   default = "VMware123!"
 }
 variable ovf_enable_ssh {
-  type = string
+  type    = string
   default = "false"
 }
 variable ovf_syslog_server {
-  type = string
+  type    = string
   default = ""
 }
 
 variable extra_disks {
-  type = list(map(string))
+  type    = list(map(string))
   default = []
 }
