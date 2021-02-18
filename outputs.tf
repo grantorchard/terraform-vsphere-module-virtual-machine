@@ -5,3 +5,7 @@ output virtual_machine_id {
 output vsphere_compute_cluster_id {
   value = data.vsphere_compute_cluster.this[var.cluster].id
 }
+
+output virtual_machine_name {
+  value = local.hostname
+}
